@@ -67,16 +67,18 @@ func CmdList(cmd *cli.Cmd) {
 			IncludeData:  *data,
 		})
 
-		if *outputJSON {
-			fmt.Println("[")
-		}
-
 		first := true
 		for cursor.Next() {
-			record := cursor.Get()
+			record, err := cursor.Get()
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "e3db-cli: ls: %s\n", err)
+				os.Exit(1)
+			}
+
 			if *outputJSON {
 				if first {
 					first = false
+					fmt.Println("[")
 				} else {
 					fmt.Printf(",\n")
 				}
