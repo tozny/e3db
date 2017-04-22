@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/jawher/mow.cli"
 	"github.com/tozny/e3db-go"
@@ -97,6 +98,36 @@ func CmdList(cmd *cli.Cmd) {
 }
 
 func CmdWrite(cmd *cli.Cmd) {
+	recordType := cmd.String(cli.StringArg{
+		Name:      "TYPE",
+		Desc:      "type of record to write",
+		Value:     "",
+		HideValue: true,
+	})
+
+	data := cmd.String(cli.StringArg{
+		Name:      "DATA",
+		Desc:      "json formatted record data",
+		Value:     "",
+		HideValue: true,
+	})
+
+	cmd.Action = func() {
+		client := options.getClient()
+		record := client.NewRecord(*recordType)
+
+		err := json.NewDecoder(strings.NewReader(*data)).Decode(&record.Data)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "e3db-cli: write: %s\n", err)
+		}
+
+		id, err := client.Put(context.Background(), record)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "e3db-cli: write: %s\n", err)
+		}
+
+		fmt.Println(id)
+	}
 }
 
 func CmdRead(cmd *cli.Cmd) {
