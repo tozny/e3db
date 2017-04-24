@@ -28,27 +28,18 @@ func (o *cliOptions) getClient() *e3db.Client {
 	var client *e3db.Client
 	var err error
 
-	if *o.Profile == "" {
-		client, err = e3db.GetDefaultClient()
-		if err != nil {
-			log.Fatal(err)
-		}
-	} else {
-		opts, err := e3db.GetConfig(*o.Profile)
-		if err != nil {
-			log.Fatal(err)
-		}
+	opts, err := e3db.GetConfig(*o.Profile)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-		if *o.Logging {
-			opts.Logging = true
-		}
+	if *o.Logging {
+		opts.Logging = true
+	}
 
-		client, err = e3db.GetClient(*opts)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		fmt.Println(client)
+	client, err = e3db.GetClient(*opts)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	return client
