@@ -19,12 +19,12 @@ import (
 	"github.com/tozny/e3db-go"
 )
 
-type Options struct {
+type cliOptions struct {
 	Logging *bool
 	Profile *string
 }
 
-func (o *Options) getClient() *e3db.Client {
+func (o *cliOptions) getClient() *e3db.Client {
 	var client *e3db.Client
 	var err error
 
@@ -34,22 +34,29 @@ func (o *Options) getClient() *e3db.Client {
 			log.Fatal(err)
 		}
 	} else {
-		client, err = e3db.GetClient(*o.Profile)
+		opts, err := e3db.GetConfig(*o.Profile)
 		if err != nil {
 			log.Fatal(err)
 		}
-	}
 
-	if *o.Logging {
-		client.Logging = true
+		if *o.Logging {
+			opts.Logging = true
+		}
+
+		client, err = e3db.GetClient(*opts)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Println(client)
 	}
 
 	return client
 }
 
-var options Options
+var options cliOptions
 
-func CmdList(cmd *cli.Cmd) {
+func cmdList(cmd *cli.Cmd) {
 	data := cmd.BoolOpt("d data", false, "include data in JSON format")
 	outputJSON := cmd.BoolOpt("j json", false, "output in JSON format")
 	contentTypes := cmd.StringsOpt("t type", nil, "record content type")
@@ -97,7 +104,7 @@ func CmdList(cmd *cli.Cmd) {
 	}
 }
 
-func CmdWrite(cmd *cli.Cmd) {
+func cmdWrite(cmd *cli.Cmd) {
 	recordType := cmd.String(cli.StringArg{
 		Name:      "TYPE",
 		Desc:      "type of record to write",
@@ -121,7 +128,7 @@ func CmdWrite(cmd *cli.Cmd) {
 			fmt.Fprintf(os.Stderr, "e3db-cli: write: %s\n", err)
 		}
 
-		id, err := client.Put(context.Background(), record)
+		id, err := client.Write(context.Background(), record)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "e3db-cli: write: %s\n", err)
 		}
@@ -130,7 +137,7 @@ func CmdWrite(cmd *cli.Cmd) {
 	}
 }
 
-func CmdRead(cmd *cli.Cmd) {
+func cmdRead(cmd *cli.Cmd) {
 	recordIDs := cmd.Strings(cli.StringsArg{
 		Name:      "RECORD_ID",
 		Desc:      "record ID to read",
@@ -143,7 +150,7 @@ func CmdRead(cmd *cli.Cmd) {
 		client := options.getClient()
 
 		for _, recordID := range *recordIDs {
-			record, err := client.Get(context.Background(), recordID)
+			record, err := client.Read(context.Background(), recordID)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -158,6 +165,48 @@ func CmdRead(cmd *cli.Cmd) {
 	}
 }
 
+func cmdRegister(cmd *cli.Cmd) {
+	email := cmd.String(cli.StringArg{
+		Name:      "EMAIL",
+		Desc:      "client e-mail address",
+		Value:     "",
+		HideValue: true,
+	})
+
+	// TODO: minimally validate that email looks like an email address
+
+	cmd.Action = func() {
+		// Preflight check for existing configuration file to prevent a later
+		// failure writing the file (since we use O_EXCL) after registration.
+		if e3db.ProfileExists(*options.Profile) {
+			var name string
+			if *options.Profile != "" {
+				name = *options.Profile
+			} else {
+				name = "(default)"
+			}
+
+			fmt.Fprintf(os.Stderr, "e3db-cli: register: profile %s already registered\n", name)
+			os.Exit(1)
+		}
+
+		info, err := e3db.RegisterClient(*email, e3db.RegistrationOpts{
+			Logging: *options.Logging,
+		})
+
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "e3db-cli: register: %s\n", err)
+			os.Exit(1)
+		}
+
+		err = e3db.SaveConfig(*options.Profile, info)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "e3db-cli: register: %s\n", err)
+			os.Exit(1)
+		}
+	}
+}
+
 func main() {
 	app := cli.App("e3db-cli", "E3DB Command Line Interface")
 
@@ -166,8 +215,9 @@ func main() {
 	options.Logging = app.BoolOpt("d debug", false, "enable debug logging")
 	options.Profile = app.StringOpt("p profile", "", "e3db configuration profile")
 
-	app.Command("ls", "list records", CmdList)
-	app.Command("read", "read records", CmdRead)
-	app.Command("write", "write a record", CmdWrite)
+	app.Command("register", "register a client", cmdRegister)
+	app.Command("ls", "list records", cmdList)
+	app.Command("read", "read records", cmdRead)
+	app.Command("write", "write a record", cmdWrite)
 	app.Run(os.Args)
 }
