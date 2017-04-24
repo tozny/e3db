@@ -157,6 +157,20 @@ func cmdRead(cmd *cli.Cmd) {
 }
 
 func cmdRegister(cmd *cli.Cmd) {
+	apiBaseURL := cmd.String(cli.StringOpt{
+		Name:      "api",
+		Desc:      "e3db api base url",
+		Value:     "",
+		HideValue: true,
+	})
+
+	authBaseURL := cmd.String(cli.StringOpt{
+		Name:      "auth",
+		Desc:      "e3db auth service base url",
+		Value:     "",
+		HideValue: true,
+	})
+
 	email := cmd.String(cli.StringArg{
 		Name:      "EMAIL",
 		Desc:      "client e-mail address",
@@ -182,7 +196,9 @@ func cmdRegister(cmd *cli.Cmd) {
 		}
 
 		info, err := e3db.RegisterClient(*email, e3db.RegistrationOpts{
-			Logging: *options.Logging,
+			APIBaseURL:  *apiBaseURL,
+			AuthBaseURL: *authBaseURL,
+			Logging:     *options.Logging,
 		})
 
 		if err != nil {
