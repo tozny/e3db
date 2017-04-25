@@ -9,6 +9,7 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -166,6 +167,62 @@ func cmdRead(cmd *cli.Cmd) {
 	}
 }
 
+func cmdInfo(cmd *cli.Cmd) {
+	clientID := cmd.String(cli.StringArg{
+		Name:      "CLIENT_ID",
+		Desc:      "client unique id or email",
+		Value:     "",
+		HideValue: true,
+	})
+
+	cmd.Spec = "[CLIENT_ID]"
+
+	cmd.Action = func() {
+		client := options.getClient()
+		if *clientID == "" {
+			fmt.Printf("Client ID:   %s\n", client.ClientID)
+			fmt.Printf("Public Key:  %s\n", base64.RawURLEncoding.EncodeToString(client.PublicKey[:]))
+			fmt.Printf("API Key ID:  %s\n", client.APIKeyID)
+			fmt.Printf("API Secret:  %s\n", client.APISecret)
+		} else {
+			info, err := client.GetClientInfo(context.Background(), *clientID)
+			if err != nil {
+				dieErr(err)
+			}
+
+			fmt.Printf("Client ID:   %s\n", info.ClientID)
+			fmt.Printf("Public Key:  %s\n", info.PublicKey.Curve25519)
+		}
+	}
+}
+
+func cmdShare(cmd *cli.Cmd) {
+	recordType := cmd.String(cli.StringArg{
+		Name:      "TYPE",
+		Desc:      "type of records to share",
+		Value:     "",
+		HideValue: true,
+	})
+
+	clientID := cmd.String(cli.StringArg{
+		Name:      "CLIENT_ID",
+		Desc:      "client unique id or email",
+		Value:     "",
+		HideValue: true,
+	})
+
+	cmd.Action = func() {
+		client := options.getClient()
+
+		err := client.Share(context.Background(), *recordType, *clientID)
+		if err != nil {
+			dieErr(err)
+		}
+
+		fmt.Printf("Records of type '%s' are now shared with client '%s'\n", *recordType, *clientID)
+	}
+}
+
 func cmdRegister(cmd *cli.Cmd) {
 	apiBaseURL := cmd.String(cli.StringOpt{
 		Name:      "api",
@@ -179,6 +236,13 @@ func cmdRegister(cmd *cli.Cmd) {
 		Desc:      "e3db auth service base url",
 		Value:     "",
 		HideValue: true,
+	})
+
+	isPublic := cmd.Bool(cli.BoolOpt{
+		Name:      "public",
+		Desc:      "allow other clients to find you by email",
+		Value:     false,
+		HideValue: false,
 	})
 
 	email := cmd.String(cli.StringArg{
@@ -208,6 +272,7 @@ func cmdRegister(cmd *cli.Cmd) {
 			APIBaseURL:  *apiBaseURL,
 			AuthBaseURL: *authBaseURL,
 			Logging:     *options.Logging,
+			FindByEmail: *isPublic,
 		})
 
 		if err != nil {
@@ -230,8 +295,10 @@ func main() {
 	options.Profile = app.StringOpt("p profile", "", "e3db configuration profile")
 
 	app.Command("register", "register a client", cmdRegister)
+	app.Command("info", "get client information", cmdInfo)
 	app.Command("ls", "list records", cmdList)
 	app.Command("read", "read records", cmdRead)
 	app.Command("write", "write a record", cmdWrite)
+	app.Command("share", "share records with another client", cmdShare)
 	app.Run(os.Args)
 }
