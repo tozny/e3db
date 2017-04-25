@@ -1,0 +1,4 @@
+package: github.com/tozny/e3db-cli
+import:
+- package: github.com/jawher/mow.cli
+- package: github.com/tozny/e3db-go

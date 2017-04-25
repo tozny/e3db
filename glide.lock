@@ -1,0 +1,41 @@
+hash: 242b89d7d0ae18ca315c7df64a5453d15a0e7cc792909b1c260a1fc065946b08
+updated: 2017-04-25T08:33:32.156420608-07:00
+imports:
+- name: github.com/golang/protobuf
+  version: 8ee79997227bf9b34611aee7946ae64735e6fd93
+  subpackages:
+  - proto
+- name: github.com/jawher/mow.cli
+  version: 0de3d3b4ed00f261460d12ecde4efa90fbfcd8ed
+- name: github.com/mitchellh/go-homedir
+  version: b8bc1bf767474819792c23f32d8286a45736f1c6
+- name: github.com/tozny/e3db-go
+  version: f7d45bcfe925fa0c444d74cb019fe1257fc0a3d8
+- name: golang.org/x/crypto
+  version: ede567c8e044a5913dad1d1af3696d9da953104c
+  subpackages:
+  - curve25519
+  - nacl/box
+  - nacl/secretbox
+  - poly1305
+  - salsa20/salsa
+- name: golang.org/x/net
+  version: 4971afdc2f162e82d185353533d3cf16188a9f4e
+  subpackages:
+  - context
+- name: golang.org/x/oauth2
+  version: 96382aa079b72d8c014eb0c50f6c223d1e6a2de0
+  subpackages:
+  - clientcredentials
+  - internal
+- name: google.golang.org/appengine
+  version: 08a149cfaee099e6ce4be01c0113a78c85ee1dee
+  subpackages:
+  - internal
+  - internal/base
+  - internal/datastore
+  - internal/log
+  - internal/remote_api
+  - internal/urlfetch
+  - urlfetch
+testImports: []
