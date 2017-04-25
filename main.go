@@ -167,6 +167,27 @@ func cmdRead(cmd *cli.Cmd) {
 	}
 }
 
+func cmdDelete(cmd *cli.Cmd) {
+	recordIDs := cmd.Strings(cli.StringsArg{
+		Name:      "RECORD_ID",
+		Desc:      "record IDs to delete",
+		Value:     nil,
+		HideValue: true,
+	})
+
+	cmd.Spec = "RECORD_ID..."
+	cmd.Action = func() {
+		client := options.getClient()
+
+		for _, recordID := range *recordIDs {
+			err := client.Delete(context.Background(), recordID)
+			if err != nil {
+				dieErr(err)
+			}
+		}
+	}
+}
+
 func cmdInfo(cmd *cli.Cmd) {
 	clientID := cmd.String(cli.StringArg{
 		Name:      "CLIENT_ID",
@@ -299,6 +320,7 @@ func main() {
 	app.Command("ls", "list records", cmdList)
 	app.Command("read", "read records", cmdRead)
 	app.Command("write", "write a record", cmdWrite)
+	app.Command("delete", "delete a record", cmdDelete)
 	app.Command("share", "share records with another client", cmdShare)
 	app.Run(os.Args)
 }
