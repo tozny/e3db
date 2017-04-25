@@ -62,13 +62,26 @@ var options cliOptions
 func cmdList(cmd *cli.Cmd) {
 	data := cmd.BoolOpt("d data", false, "include data in JSON format")
 	outputJSON := cmd.BoolOpt("j json", false, "output in JSON format")
-	contentTypes := cmd.StringsOpt("t type", nil, "record content type")
-	recordIDs := cmd.StringsOpt("r record", nil, "record ID")
-	writerIDs := cmd.StringsOpt("w writer", nil, "record writer ID")
-	userIDs := cmd.StringsOpt("u user", nil, "record user ID")
+	contentTypes := cmd.StringsOpt("t type", nil, "record content types")
+	recordIDs := cmd.StringsOpt("r record", nil, "record IDs")
+	writerIDs := cmd.StringsOpt("w writer", nil, "record writer IDs or email addresses")
+	userIDs := cmd.StringsOpt("u user", nil, "record user IDs")
 
 	cmd.Action = func() {
 		client := options.getClient()
+		ctx := context.Background()
+
+		// Convert e-mail addresses in write list to writer IDs.
+		for ix, writerID := range *writerIDs {
+			if strings.Contains(writerID, "@") {
+				info, err := client.GetClientInfo(ctx, writerID)
+				if err != nil {
+					dieErr(err)
+				}
+
+				(*writerIDs)[ix] = info.ClientID
+			}
+		}
 
 		cursor := client.Query(context.Background(), e3db.Q{
 			ContentTypes: *contentTypes,
