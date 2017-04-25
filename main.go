@@ -257,6 +257,33 @@ func cmdShare(cmd *cli.Cmd) {
 	}
 }
 
+func cmdUnshare(cmd *cli.Cmd) {
+	recordType := cmd.String(cli.StringArg{
+		Name:      "TYPE",
+		Desc:      "type of records to share",
+		Value:     "",
+		HideValue: true,
+	})
+
+	clientID := cmd.String(cli.StringArg{
+		Name:      "CLIENT_ID",
+		Desc:      "client unique id or email",
+		Value:     "",
+		HideValue: true,
+	})
+
+	cmd.Action = func() {
+		client := options.getClient()
+
+		err := client.Unshare(context.Background(), *recordType, *clientID)
+		if err != nil {
+			dieErr(err)
+		}
+
+		fmt.Printf("Records of type '%s' are no longer shared with client '%s'\n", *recordType, *clientID)
+	}
+}
+
 func cmdRegister(cmd *cli.Cmd) {
 	apiBaseURL := cmd.String(cli.StringOpt{
 		Name:      "api",
@@ -335,5 +362,6 @@ func main() {
 	app.Command("write", "write a record", cmdWrite)
 	app.Command("delete", "delete a record", cmdDelete)
 	app.Command("share", "share records with another client", cmdShare)
+	app.Command("unshare", "stop sharing records with another client", cmdUnshare)
 	app.Run(os.Args)
 }
