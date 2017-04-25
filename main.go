@@ -11,7 +11,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 
@@ -24,13 +23,25 @@ type cliOptions struct {
 	Profile *string
 }
 
+func dieErr(err error) {
+	fmt.Fprintf(os.Stderr, "e3db-cli: %s\n", err)
+	cli.Exit(1)
+}
+
+func dieFmt(format string, args ...interface{}) {
+	fmt.Fprint(os.Stderr, "e3db-cli: ")
+	fmt.Fprintf(os.Stderr, format, args)
+	fmt.Fprint(os.Stderr, "\n")
+	cli.Exit(1)
+}
+
 func (o *cliOptions) getClient() *e3db.Client {
 	var client *e3db.Client
 	var err error
 
 	opts, err := e3db.GetConfig(*o.Profile)
 	if err != nil {
-		log.Fatal(err)
+		dieErr(err)
 	}
 
 	if *o.Logging {
@@ -39,7 +50,7 @@ func (o *cliOptions) getClient() *e3db.Client {
 
 	client, err = e3db.GetClient(*opts)
 	if err != nil {
-		log.Fatal(err)
+		dieErr(err)
 	}
 
 	return client
@@ -70,8 +81,7 @@ func cmdList(cmd *cli.Cmd) {
 		for cursor.Next() {
 			record, err := cursor.Get()
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "e3db-cli: ls: %s\n", err)
-				os.Exit(1)
+				dieErr(err)
 			}
 
 			if *outputJSON {
@@ -116,12 +126,12 @@ func cmdWrite(cmd *cli.Cmd) {
 
 		err := json.NewDecoder(strings.NewReader(*data)).Decode(&record.Data)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "e3db-cli: write: %s\n", err)
+			dieErr(err)
 		}
 
 		id, err := client.Write(context.Background(), record)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "e3db-cli: write: %s\n", err)
+			dieErr(err)
 		}
 
 		fmt.Println(id)
@@ -143,12 +153,12 @@ func cmdRead(cmd *cli.Cmd) {
 		for _, recordID := range *recordIDs {
 			record, err := client.Read(context.Background(), recordID)
 			if err != nil {
-				log.Fatal(err)
+				dieErr(err)
 			}
 
 			bytes, err := json.MarshalIndent(record, "", "  ")
 			if err != nil {
-				log.Fatal(err)
+				dieErr(err)
 			}
 
 			fmt.Println(string(bytes))
@@ -191,8 +201,7 @@ func cmdRegister(cmd *cli.Cmd) {
 				name = "(default)"
 			}
 
-			fmt.Fprintf(os.Stderr, "e3db-cli: register: profile %s already registered\n", name)
-			os.Exit(1)
+			dieFmt("register: profile %s already registered", name)
 		}
 
 		info, err := e3db.RegisterClient(*email, e3db.RegistrationOpts{
@@ -202,14 +211,12 @@ func cmdRegister(cmd *cli.Cmd) {
 		})
 
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "e3db-cli: register: %s\n", err)
-			os.Exit(1)
+			dieErr(err)
 		}
 
 		err = e3db.SaveConfig(*options.Profile, info)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "e3db-cli: register: %s\n", err)
-			os.Exit(1)
+			dieErr(err)
 		}
 	}
 }
