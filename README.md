@@ -5,26 +5,21 @@ with powerful sharing and consent management features. [Read more on
 our
 blog](https://tozny.com/blog/announcing-project-e3db-the-end-to-end-encrypted-database/).
 
-Tozny's E3DB provides a familiar JSON-based NoSQL-style API for reading,
-writing, and listing JSON data stored securely in the cloud.
-
-First a caveat: *Don’t store anything you want to keep (yet!).* This
-is a developer preview, and we might have to delete the database
-periodically. Please do try it out as an experiment, and over time, we
-will build it into a durable encrypted storage solution!
+Tozny's E3DB provides a familiar JSON-based NoSQL-style API for
+reading, writing, and listing JSON data stored securely in the cloud.
 
 ## Quick Start
 
 Please try out E3DB and give us feedback! Read below for detailed
-instructions. Here are the basic steps. You'll need Java 8 or higher.
-E3DB has been tested on MacOS, Windows, and Linux:
+instructions. Here are the basic steps. E3DB has been tested on MacOS,
+Windows, and Linux:
 
- 1. Download the appropriate binary from our [releases page](https://github.com/tozny/e3db-cli/releases/download) and save it somewhere in your PATH. For convenience, rename the binary to `e3db` and make sure to set the executable bit.
- 1. `e3db register` - then check your email!
- 1. `e3db ls` - You should see nothing
- 1. Write a record: `recordID=$(e3db write address_book '{"name": "John Doe", "phone": "503-555-1212"}')`
- 1. `e3db ls` - You should see your new record
- 1. Read a record: `e3db read $recordID`
+ 1. Download the appropriate binary from our [releases page](https://github.com/tozny/e3db-cli/releases) and save it somewhere in your PATH. For convenience, rename the binary to `e3db`.
+ 1. `$ e3db register` - then check your email!
+ 1. `$ e3db ls` - You should see nothing
+ 1. Write a record: `$ recordID=$(e3db write address_book '{"name": "John Doe", "phone": "503-555-1212"}')`
+ 1. `$ e3db ls` - You should see your new record
+ 1. Read a record: `$ e3db read $recordID`
 
 ## Terms of Service
 
@@ -34,55 +29,45 @@ the linked document.
 # Installation & Use
 
 To obtain the E3DB CLI binary, download the
-[1.0.0 binary](https://github.com/tozny/e3db-cli/releases/download/1.0.0)
+[1.0.0 binary](https://github.com/tozny/e3db-cli/releases/tag/1.0.0)
 for your platform from our [releases
-page]((https://github.com/tozny/e3db-cli/releases/download/).
+page](https://github.com/tozny/e3db-cli/releases).
 
 After downloading the file, rename it to `e3db` for convenience and
 set it executable.
 
 You should now be able to run the E3DB CLI via the `e3db` command:
 
-    $ e3db --help
-    Usage: e3db-cli [OPTIONS] COMMAND [arg...]
+```
+$ e3db --help
+Usage: e3db-cli [OPTIONS] COMMAND [arg...]
 
-    E3DB Command Line Interface
-    [...]
-
+E3DB Command Line Interface
+[...]
+```
 
 ## Registration
 
 Before you can use E3DB, you must register an account and receive API
-credentials. To register using the Tozny E3DB CLI, run:
+credentials:
 
 ```
 $ e3db register <your email>
 ```
 
-This will register an account using the email address given. By
-default, other clients will be able to find and share with you using
-your email address. If you'd rather not make your address public, pass
-the `--public=false` flag:
+After registration, API credentials and other configuration will be
+written to the file `$HOME/.tozny/e3db.json` and can be displayed by
+running `e3db info`.
 
-```
-$ e3db register --public=false <your email>
-```
-
-Tozny will send a confirmation e-mail to the address entered
-during the registration process. Simply click the link in the
-e-mail to complete the registration.
-
-After a successful registration, API credentials and other
-configuration will be written to the file `$HOME/.tozny/e3db.json`
-and can be displayed by running `e3db info`.
+To use your account, it must be verified. Tozny will send a
+verification e-mail to the email address you provided during
+registration. Simply click the link in the e-mail to complete
+verification.
 
 ## CLI Examples
 
 These examples demonstrate how to use the E3DB Command Line
-Interface to interactively use E3DB as a database without
-the need to write any code.
-
-Note that all E3DB commands have help, so anytime you can see
+Interface. Note that all E3DB commands have help, so anytime you can see
 the documentation for a given command using the `--help` argument. For
 example, you can see help on all commands:
 
@@ -123,118 +108,104 @@ To list all records that we have access to in E3DB, use the
 
 ```
 $ e3db ls
-Record ID                                 Writer        Type
-------------------------------------------------------------------------------
-874b41ff-ac84-4961-a91d-9e0c114d0e92      e04af806...   address_book
+768d2ef7-36b4-4061-923c-d38bf72d03d3     message
+50176d7a-c026-49bd-be1e-4df1e7c49b1f     message
 ```
 
-For each record accessible in E3DB, the `ls` command lists the record ID,
-ID of the client that wrote the record, and the type of data contained
-in the record.
+#### Formats & Data
 
-When other parties share data with us, the `Writer` column will show the
-ID of the client that shared the data, rather than our own client ID.
+To see data associated with each record when using `ls`, use the `-jd` flags:
+
+```
+$ e3db ls -jd
+[
+  {
+    "meta": {
+      "record_id": "768d2ef7-36b4-4061-923c-d38bf72d03d3",
+      "writer_id": "dac7899f-c474-4386-9ab8-f638dcc50dec",
+      "user_id": "dac7899f-c474-4386-9ab8-f638dcc50dec",
+      "type": "message",
+      "plain": null,
+      "created": "2017-05-03T16:38:00.692946Z",
+      "last_modified": "2017-05-03T16:38:00.692946Z"
+    },
+    "data": {
+      "content": "Twas brillig, and the slithy toves"
+    }
+  },
+  {
+    "meta": {
+      "record_id": "50176d7a-c026-49bd-be1e-4df1e7c49b1f",
+      "writer_id": "dac7899f-c474-4386-9ab8-f638dcc50dec",
+      "user_id": "dac7899f-c474-4386-9ab8-f638dcc50dec",
+      "type": "message",
+      "plain": null,
+      "created": "2017-05-03T16:38:00.692946Z",
+      "last_modified": "2017-05-03T16:38:00.692946Z"
+    },
+    "data": {
+      "content": "Did gyre and gimble in the wabe:"
+    }
+  }
+]
+```
 
 #### Filters
 
 Several filters are available for matching records. Each argument can take a comma-separated list of values:
 
-- **`-t`/`--type` - Retrieve records with the given content type.
-- **`-r`/`--record` - Retrieve records with the given ID.
-- **`-w`/`--writer` - Retrieve records written by the given writer. Each writer is identified by their unique ID or email address.
-- **`-u`/`--user` - Retrieve records written about the given user. Each user is identified by their unique ID.
-
-#### Formats & Data
-
-- `-d`/`--data=true` By default, **data** for each record is not retrieved, only meta data (who wrote the record, etc.). Use the flag to also include record level data.
-- `j`/`--json=true` Outputs in JSON format rather than tabular format.
+- `-t`/`--type` - Retrieve records with the given content type.
+- `-r`/`--record` - Retrieve records with the given ID.
+- `-w`/`--writer` - Retrieve records written by the given writer. Each writer is identified by their unique ID or email address.
+- `-u`/`--user` - Retrieve records written about the given user. Each user is identified by their unique ID.
 
 #### Examples
 
-Search for records for a specific user ID:
+Search for records (written by you) about a specific user ID:
 
 ```
-$ e3db ls --user e04af806-3bbf-41d6-9ed1-a12bdab671ee
-Record ID                                 Writer                                  Type
---------------------------------------------------------------------------------------
-6552dc73-2146-4c3f-9b0c-4cf616bef7fa      me                                      test_type
-aa0f52bb-0a90-490e-ba93-99375354b3e2      me                                      address_book
-Index of last record: 16
+$ e3db ls -jd --user e04af806-3bbf-41d6-9ed1-a12bdab671ee
+....
 ```
 
-Search for records by a set of writer IDs. Note you can use email addresses or IDs here:
-```
-$ e3db ls --writer mimsy@borogoves.com --writer 874b41ff-ac84-4961-a91d-9e0c114d0e92
-Record ID                                 Writer                                  Type
---------------------------------------------------------------------------------------
-6552dc73-2146-4c3f-9b0c-4cf616bef7fa      me                                      test_type
-aa0f52bb-0a90-490e-ba93-99375354b3e2      me                                      address_book
-48aaa861-3f46-45b5-bb2f-c386b2902336      874b41ff-ac84-4961-a91d-9e0c114d0e92    other
-Index of last record: 22
-```
+Search for records written by a set of writer IDs. Note you can use email addresses or IDs here:
 
-Use JSON output format:
 ```
-$ e3db ls --writer mimsy@borogoves.com
-[
-  {
-    "meta": {
-      "record_id": "aa0f52bb-0a90-490e-ba93-99375354b3e2",
-      "writer_id": "e04af806-3bbf-41d6-9ed1-a12bdab671ee",
-      "user_id": "a799e981-4d22-4ff7-b1ab-20063d5ed967",
-      "type": "address_book",
-      "created": "2017-03-31T13:35:55.000580-07:00",
-      "last_modified": "2017-03-31T13:35:55.000580-07:00",
-      "plain": {
-        "group": "friends"
-      }
-    },
-    "data": {
-      "phone": "503-555-1212",
-      "name": "John Doe"
-    }
-  }
-]
-Index of last record: 16
+$ e3db ls -jd --writer mimsy@borogoves.com --writer 874b41ff-ac84-4961-a91d-9e0c114d0e92
+...
 ```
 
 ### Reading Records
 
 To read a record, we must first know the unique record ID. This was
-printed by the CLI when the record was first written, and also displayed
-in the output of the `ls` command.
+printed by the CLI when the record was first written, and also
+displayed in the output of the `ls` command.
 
 ```
-$ e3db read 874b41ff-ac84-4961-a91d-9e0c114d0e92
-
-Record ID:           874b41ff-ac84-4961-a91d-9e0c114d0e92
-Record Type:         address_book
-Writer ID:           e04af806-3bbf-41d6-9ed1-a12bdab671ee
-User ID:             e04af806-3bbf-41d6-9ed1-a12bdab671ee
-
-Field                Value
-------------------------------------------------------------------------------
-phone                503-555-1212
-name                 John Doe
+$ e3db read 768d2ef7-36b4-4061-923c-d38bf72d03d3
+{
+  "meta": {
+    "record_id": "768d2ef7-36b4-4061-923c-d38bf72d03d3",
+    "writer_id": "dac7899f-c474-4386-9ab8-f638dcc50dec",
+    "user_id": "dac7899f-c474-4386-9ab8-f638dcc50dec",
+    "type": "message",
+    "plain": {},
+    "created": "2017-05-03T16:38:00.692946Z",
+    "last_modified": "2017-05-03T16:38:00.692946Z"
+  },
+  "data": {
+    "content": "Twas brillig, and the slithy toves"
+  }
+}
 ```
-
-The `read` command first prints meta-information about the record,
-such as its unique ID, type, and the IDs of the client that wrote
-the record and its associated user. Then it displays each field
-from the original JSON data, along with its decrypted value.
 
 ### Sharing Records
 
-The Tozny E3DB allows you to share your data with another E3DB
-client. Sharing records allows your records to show in the
-record list for another client.
-
-In order to set up sharing, you must know the unique ID or email
-adddress of the client you wish to share with. Similarly, if others
-wish to share with you, they must know your unique ID or email
-address. (If you passed the `public=false` flag when registering, your
-email address cannot be used to share with you). To find the unique
-ID of your client, run `e3db info`.
+E3DB allows you to share your data with another E3DB client. In order
+to set up sharing, you must know the unique ID or email adddress of
+the client you wish to share with. Similarly, if others wish to share
+with you, they must know your unique ID or email address. To find the
+unique ID of your client, run `e3db info`.
 
 The E3DB client allows you to share records based on their content
 type. For example, to share all address book entries with another
@@ -251,10 +222,13 @@ to read your records with type `address_book`. It will also
 securely share the encryption key for those records with the
 client so they can decrypt the contents of each field.
 
-Note that you can use the ID of a client anywhere that an email
-address is accepted. For example, to share with a client who has ID
-`eb540605-9f2f-4251-bd40-90ba8da99615`:
+## SDKs
 
-```
-$ e3db share address_book eb540605-9f2f-4251-bd40-90ba8da99615
-```
+Tozny provides SDKs for interacting with E3DB. We currently offer SDKs for the following languages:
+
+- [Ruby](http://github.com/tozny/e3db-ruby)
+- [Go](http://github.com/tozny/e3db-go).
+- [Java](http://github.com/tozny/e3db-client)
+
+Each repository contains information about how to use the SDK,
+where to find hosted documentation, and more.
