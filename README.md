@@ -159,10 +159,10 @@ Several filters are available for matching records. Each argument can take a com
 
 #### Search & List Examples
 
-Search for records (written by you) about a specific user ID:
+Search for records (written by you) with a specific content type:
 
 ```
-$ e3db ls -jd --user e04af806-3bbf-41d6-9ed1-a12bdab671ee
+$ e3db ls -jd --type message
 ....
 ```
 
@@ -171,6 +171,28 @@ Search for records written by a set of writer IDs. Note you can use email addres
 ```
 $ e3db ls -jd --writer mimsy@borogoves.com --writer 874b41ff-ac84-4961-a91d-9e0c114d0e92
 ...
+```
+
+### Reading Records
+
+Individual records can be retrieved with the `read` command:
+
+```
+$ e3db read 768d2ef7-36b4-4061-923c-d38bf72d03d3
+{
+  "meta": {
+    "record_id": "768d2ef7-36b4-4061-923c-d38bf72d03d3",
+    "writer_id": "dac7899f-c474-4386-9ab8-f638dcc50dec",
+    "user_id": "dac7899f-c474-4386-9ab8-f638dcc50dec",
+    "type": "message",
+    "plain": null,
+    "created": "2017-05-03T16:38:00.692946Z",
+    "last_modified": "2017-05-03T16:38:00.692946Z"
+  },
+  "data": {
+    "content": "Twas brillig, and the slithy toves"
+  }
+}
 ```
 
 ### Sharing Records
@@ -202,7 +224,7 @@ Tozny provides SDKs for interacting with E3DB. We currently offer SDKs for the f
 
 - [Ruby](http://github.com/tozny/e3db-ruby)
 - [Go](http://github.com/tozny/e3db-go)
-- [Java](http://github.com/tozny/e3db-client)
+- [Java](http://github.com/tozny/e3db-java)
 
 Each repository contains information about how to use the SDK,
 where to find hosted documentation, and more.
