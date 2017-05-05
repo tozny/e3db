@@ -99,6 +99,9 @@ $ e3db write address_book '{"name": "John Doe", "phone": "503-555-1212"}'
 Once E3DB has written the record, it outputs the UUID of the newly
 created data. This can be used later to retrieve the specific record.
 
+NOTE: E3DB only accepts JSON documents with **string** values. Documents
+with numeric, boolean, or object values will **not** be accepted.
+
 ### Searching & Listing Records
 
 To list all records that we have access to in E3DB, use the
