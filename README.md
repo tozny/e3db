@@ -2,18 +2,22 @@
 
 The Tozny End-to-End Encrypted Database (E3DB) is a storage platform
 with powerful sharing and consent management features.
+[Read more on our blog.](https://tozny.com/blog/announcing-project-e3db-the-end-to-end-encrypted-database/)
 
-Tozny's E3DB provides a familiar JSON-based NoSQL-style API for
-reading, writing, and listing JSON data stored securely in the cloud.
+E3DB provides a familiar JSON-based NoSQL-style API for reading, writing,
+and querying data stored securely in the cloud.
 
 ## Quick Start
 
 Please try out E3DB and give us feedback! Here are the basic steps.
 E3DB has been tested on MacOS, Windows, and Linux:
 
- 1. Download the appropriate binary from our [releases page](https://github.com/tozny/e3db-cli/releases) and save it somewhere in your PATH. For convenience, rename the binary to `e3db`.
- 1. `$ e3db register` - then check your email!
- 1. `$ e3db ls` - You should see nothing.
+ 1. Download the appropriate binary from our
+    [releases page](https://github.com/tozny/e3db-cli/releases) and save it
+    somewhere in your PATH. For convenience, rename the binary to `e3db`.
+ 1. Register an account with [InnoVault](https://innovault.io) and save the
+    JSON configuration info to the user’s home directory as ".tozny/e3db.json"
+ 1. Run `$ e3db ls` - You should see nothing at this point.
  1. Write a record: `$ recordID=$(e3db write address_book '{"name": "John Doe", "phone": "503-555-1212"}')`.
  1. `$ e3db ls` - You should see your new record.
  1. Read a record: `$ e3db read $recordID`.
@@ -25,13 +29,11 @@ the linked document.
 
 # Installation & Use
 
-To obtain the E3DB CLI binary, download the
-[1.0.0 binary](https://github.com/tozny/e3db-cli/releases/tag/1.0.0)
-for your platform from our [releases
-page](https://github.com/tozny/e3db-cli/releases).
+To obtain the E3DB CLI binary, download the latest release for your platform
+from our [releases page](https://github.com/tozny/e3db-cli/releases).
 
 After downloading the file, rename it to `e3db` for convenience and
-set it executable.
+set it as executable.
 
 You should now be able to run the E3DB CLI via the `e3db` command:
 
@@ -45,21 +47,10 @@ E3DB Command Line Interface
 
 ## Registration
 
-Before you can use E3DB, you must register an account and receive API
-credentials:
-
-```
-$ e3db register <your email>
-```
-
-After registration, API credentials and other configuration will be
-written to the file `$HOME/.tozny/e3db.json` and can be displayed by
-running `e3db info`.
-
-To use your account, it must be verified. Tozny will send a
-verification e-mail to the email address you provided during
-registration. Simply click the link in the e-mail to complete
-verification.
+Register an account with [InnoVault](https://innovault.io) to get started. From
+the Admin Console you can create clients directly. Save the client's JSON
+configuration info to the user’s home directory as ".tozny/e3db.json" so the
+Command-Line tool is configured to your client's credentials.
 
 ## Using the CLI
 
@@ -73,10 +64,10 @@ $ e3db --help
 ...
 ```
 
-Or help on a particular command, such as `register`:
+Or help on a particular command, such as `read`:
 
 ```
-$ e3db register --help
+$ e3db read --help
 ...
 ```
 
@@ -167,10 +158,10 @@ $ e3db ls -jd --type message
 ....
 ```
 
-Search for records written by a set of writer IDs. Note you can use email addresses or IDs here:
+Search for records written by a set of writer IDs:
 
 ```
-$ e3db ls -jd --writer mimsy@borogoves.com --writer 874b41ff-ac84-4961-a91d-9e0c114d0e92
+$ e3db ls -jd --writer dac7899f-c474-4386-9ab8-f638dcc50dec --writer 874b41ff-ac84-4961-a91d-9e0c114d0e92
 ...
 ```
 
@@ -199,22 +190,21 @@ $ e3db read 768d2ef7-36b4-4061-923c-d38bf72d03d3
 ### Sharing Records
 
 E3DB allows you to share your data with another E3DB client. In order
-to set up sharing, you must know the unique ID or email adddress of
-the client you wish to share with. Similarly, if others wish to share
-with you, they must know your unique ID or email address. To find the
-unique ID of your client, run `e3db info`.
+to set up sharing, you must know the unique ID of the client you wish to share
+with. Similarly, if others wish to share with you, they must know your unique
+ID. To find the unique ID of your own client, run `e3db info`.
 
 The E3DB client allows you to share records based on their content
 type. For example, to share all address book entries with another
-client (who registered as `beamish@gimble.com` and made their email
-discoverable):
+client (who has informed you that their ID is
+`874b41ff-ac84-4961-a91d-9e0c114d0e92`):
 
 ```
-$ e3db share address_book beamish@gimble.com
+$ e3db share address_book 874b41ff-ac84-4961-a91d-9e0c114d0e92
 ```
 
 This command will set up an access control policy to allow the
-client associated with the email address `beamish@gimble.com`
+client associated with the ID `874b41ff-ac84-4961-a91d-9e0c114d0e92`
 to read your records with type `address_book`. It will also
 securely share the encryption key for those records with the
 client so they can decrypt the contents of each field.
@@ -226,6 +216,7 @@ Tozny provides SDKs for interacting with E3DB. We currently offer SDKs for the f
 - [Ruby](http://github.com/tozny/e3db-ruby)
 - [Go](http://github.com/tozny/e3db-go)
 - [Java](http://github.com/tozny/e3db-java)
+- [PHP](http://github.com/tozny/e3db-php)
 
 Each repository contains information about how to use the SDK,
 where to find hosted documentation, and more.
