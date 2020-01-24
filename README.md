@@ -15,7 +15,7 @@ E3DB has been tested on MacOS, Windows, and Linux:
  1. Download the appropriate binary from our
     [releases page](https://github.com/tozny/e3db-cli/releases) and save it
     somewhere in your PATH. For convenience, rename the binary to `e3db`.
- 1. Register an account with [InnoVault](https://innovault.io) and save the
+ 1. Register an account with [Tozny](https://dashboard.tozny.com/login) and save the
     JSON configuration info to the user’s home directory as ".tozny/e3db.json"
  1. Run `$ e3db ls` - You should see nothing at this point.
  1. Write a record: `$ recordID=$(e3db write address_book '{"name": "John Doe", "phone": "503-555-1212"}')`.
@@ -24,8 +24,8 @@ E3DB has been tested on MacOS, Windows, and Linux:
 
 ## Terms of Service
 
-Your use of E3DB must abide by our [Terms of Service](terms.pdf), as detailed in
-the linked document.
+Your use of E3DB must abide by our [Terms of Service](https://tozny.com/tozny-terms-of-service/), as detailed in
+the terms of service agreement.
 
 # Installation & Use
 
@@ -47,7 +47,7 @@ E3DB Command Line Interface
 
 ## Registration
 
-Register an account with [InnoVault](https://innovault.io) to get started. From
+Register an account with [Tozny](https://dashboard.tozny.com/login) to get started. From
 the Admin Console you can create clients directly. Save the client's JSON
 configuration info to the user’s home directory as ".tozny/e3db.json" so the
 Command-Line tool is configured to your client's credentials.
